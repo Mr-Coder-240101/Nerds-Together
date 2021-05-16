@@ -1,0 +1,4 @@
+{
+	"mongoURL": "mongodb+srv://database-user:28J464@8512y@cluster0.2xpdv.mongodb.net/nerds_together?retryWrites=true&w=majority",
+	"jwtSecret": "Hello World!"
+}
