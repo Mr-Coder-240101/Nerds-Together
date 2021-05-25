@@ -10,32 +10,30 @@ const router = express.Router();
 
 // Load Schema
 const User = require("../../models/Users");
+const Profile = require("../../models/Profiles");
+
+// Load Middleware
+const authentication = require("../../middleware/authentication");
 
 // Set Validations
 const validate = [
-    check("fname", "First Name Is Must Required").not().isEmpty(),
-    check(
-        "fname",
-        "First Name Length Must Be Greater Than Or Equal To 3"
-    ).isLength({
+    check("fname", "First Name Is Must Required").notEmpty(),
+    check("fname", "First Name Length Must Be Greater Than Or Equal To 3").isLength({
         min: 3,
     }),
-    check("lname", "Last Name Is Must Required").not().isEmpty(),
-    check(
-        "lname",
-        "Last Name Length Must Be Greater Than Or Equal To 3"
-    ).isLength({
+    check("lname", "Last Name Is Must Required").notEmpty(),
+    check("lname", "Last Name Length Must Be Greater Than Or Equal To 3").isLength({
         min: 3,
     }),
-    check("password", "Password Is Must Required").not().isEmpty(),
+    check("password", "Password Is Must Required").notEmpty(),
     check("password", "Password Must Be Greater Than Or Equal To 8").isLength({
         min: 8,
     }),
-    check("email", "Email Is Must Required").not().isEmpty(),
+    check("email", "Email Is Must Required").notEmpty(),
     check("email", "Email Is Not In Valid Format").isEmail(),
 ];
 
-// Handling Post Request
+// Handling Post Request For "api/users"
 router.post("/", validate, async (req, res) => {
     let errors = validationResult(req);
 
@@ -57,7 +55,7 @@ router.post("/", validate, async (req, res) => {
                     errors: [{ msg: "User Is Already Registered" }],
                 });
             } else {
-                const avatar = `https://ui-avatars.com/api/?size=128&name=${fname}+${lname}`;
+                const avatar = `https://ui-avatars.com/api/?background=random&rounded=true&size=200&name=${fname}+${lname}`;
 
                 const salt = await bcrypt.genSalt(10);
                 password = await bcrypt.hash(password, salt);
@@ -95,6 +93,26 @@ router.post("/", validate, async (req, res) => {
                 errors: [{ msg: error.message }],
             });
         }
+    }
+});
+
+// Handling Delete Request For "api/users"
+router.delete("/", authentication, async (req, res) => {
+    try {
+        const user = await User.findById(req.id);
+        if (user) {
+            await User.findByIdAndRemove(req.id);
+            await Profile.findOneAndRemove({ user: req.id });
+            return res.json({ id: req.id, msg: "User Is Deleted Succesfully" });
+        } else {
+            return res.status(400).json({
+                errors: [{ msg: "User Does Not Exist" }],
+            });
+        }
+    } catch (error) {
+        return res.status(500).json({
+            errors: [{ msg: error.message }],
+        });
     }
 });
 

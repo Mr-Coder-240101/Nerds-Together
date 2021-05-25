@@ -14,7 +14,7 @@ const User = require("../../models/Users");
 // Load Authentication Middleware
 const authentication = require("../../middleware/authentication");
 
-// Handling Get Request
+// Handling Get Request "api/authentication"
 router.get("/", authentication, async (req, res) => {
     try {
         const user = await User.findById(req.id).select("-password");
@@ -26,17 +26,17 @@ router.get("/", authentication, async (req, res) => {
     }
 });
 
-// Set Validations
+// Set Validations for "api/authentication" Post request
 const validate = [
-    check("password", "Password Is Must Required").not().isEmpty(),
+    check("password", "Password Is Must Required").notEmpty(),
     check("password", "Password Must Be Greater Than Or Equal To 8").isLength({
         min: 8,
     }),
-    check("email", "Email Is Must Required").not().isEmpty(),
+    check("email", "Email Is Must Required").notEmpty(),
     check("email", "Email Is Not In Valid Format").isEmail(),
 ];
 
-// Handling Post Request
+// Handling Post Request "api/authentication"
 router.post("/", validate, async (req, res) => {
     let errors = validationResult(req);
 

@@ -2,8 +2,11 @@
 const jwt = require("jsonwebtoken");
 const config = require("config");
 
+// Load Module
+const User = require("../models/Users");
+
 // Export Module
-module.exports = (req, res, next) => {
+module.exports = async (req, res, next) => {
     const token = req.header("x-auth-token");
 
     if (!token) {
@@ -13,8 +16,15 @@ module.exports = (req, res, next) => {
     } else {
         try {
             const { id } = jwt.verify(token, config.get("jwtSecret"));
-            req.id = id;
-            next();
+            const user = await User.findById(id);
+            if (user) {
+                req.id = id;
+                next();
+            } else {
+                return res.status(401).json({
+                    errors: [{ msg: "User Does Not Exist" }],
+                });
+            }
         } catch (error) {
             return res.status(401).json({
                 errors: [{ msg: error.message }],
