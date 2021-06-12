@@ -39,7 +39,7 @@ export const registerUser = (credentials) => async (dispatch) => {
             "Content-Type": "application/json",
         },
     };
-    const body = JSON.stringify(credentials);
+    const body = credentials;
     try {
         const response = await axios.post("/api/users/", body, config);
         dispatch(setAlert("Successfully Signed Up", "success"));
@@ -66,7 +66,7 @@ export const loginUser = (credentials) => async (dispatch) => {
             "Content-Type": "application/json",
         },
     };
-    const body = JSON.stringify(credentials);
+    const body = credentials;
     try {
         const response = await axios.post("/api/authentication/", body, config);
         dispatch(setAlert("Successfully Signed In", "success"));
@@ -101,7 +101,7 @@ export const forgotPassword = (email) => async (dispatch) => {
             "Content-Type": "application/json",
         },
     };
-    const body = JSON.stringify({ email });
+    const body = { email };
     try {
         const response = await axios.post("/api/authentication/forgot-password", body, config);
         dispatch(setAlert(response.data.msg, "success"));
@@ -120,7 +120,7 @@ export const resetPassword = (password, token) => async (dispatch) => {
             "x-auth-token": token,
         },
     };
-    const body = JSON.stringify({ password });
+    const body = { password };
     try {
         const response = await axios.post("/api/authentication/reset-password", body, config);
         dispatch(setAlert(response.data.msg, "success"));
