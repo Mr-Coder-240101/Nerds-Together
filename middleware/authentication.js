@@ -21,7 +21,7 @@ module.exports = async (req, res, next) => {
                 req.id = id;
                 next();
             } else {
-                return res.status(401).json({
+                return res.status(400).json({
                     errors: [{ msg: "User Does Not Exist" }],
                 });
             }

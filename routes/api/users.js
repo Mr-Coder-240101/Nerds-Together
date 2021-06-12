@@ -4,6 +4,7 @@ const { check, validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const config = require("config");
+const { deleteFile } = require("../../uploads/compress");
 
 // Create Router
 const router = express.Router();
@@ -11,6 +12,7 @@ const router = express.Router();
 // Load Schema
 const User = require("../../models/Users");
 const Profile = require("../../models/Profiles");
+const Post = require("../../models/Posts");
 
 // Load Middleware
 const authentication = require("../../middleware/authentication");
@@ -83,8 +85,11 @@ router.post("/", validate, async (req, res) => {
                         expiresIn: 3600,
                     },
                     (error, token) => {
-                        if (error) throw error;
-                        else return res.json({ token });
+                        if (error) {
+                            throw error;
+                        } else {
+                            return res.json({ token });
+                        }
                     }
                 );
             }
@@ -103,7 +108,12 @@ router.delete("/", authentication, async (req, res) => {
         if (user) {
             await User.findByIdAndRemove(req.id);
             await Profile.findOneAndRemove({ user: req.id });
-            return res.json({ id: req.id, msg: "User Is Deleted Succesfully" });
+            const posts = await Post.find({ user: req.id });
+            posts.forEach((post) => {
+                post.remove();
+            });
+            deleteFile(req.id);
+            return res.json({ msg: "User Is Deleted Successfully" });
         } else {
             return res.status(400).json({
                 errors: [{ msg: "User Does Not Exist" }],

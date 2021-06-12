@@ -1,34 +1,45 @@
 import React, { Component, Fragment } from "react";
 import { Link } from "react-router-dom";
+import { connect } from "react-redux";
+import AllPosts from "../posts/AllPosts";
 
 class Landing extends Component {
     getRandomNumber = () => {
-        return Math.floor(Math.random() * 5);
+        return Math.floor(Math.random() * 4);
     };
     render() {
-        return (
-            <Fragment>
-                <section className={`landing background${this.getRandomNumber()}`}>
-                    <div className="dark-overlay">
-                        <div className="landing-inner">
-                            <h1 className="x-large">Nerds Together</h1>
-                            <p className="lead">
-                                Create A Nerd Profile, Share Questions And Get Help From Other Nerds
-                            </p>
-                            <div className="buttons">
-                                <Link to="register" className="btn btn-primary">
-                                    Sign Up
-                                </Link>
-                                <Link to="login" className="btn btn-light">
-                                    Login
-                                </Link>
+        if (this.props.isAuthenticated) {
+            return <AllPosts />;
+        } else {
+            return (
+                <Fragment>
+                    <section className={`landing background${this.getRandomNumber()}`}>
+                        <div className="dark-overlay">
+                            <div className="landing-inner">
+                                <h1 className="x-large">Nerds Together</h1>
+                                <p className="lead">
+                                    Create A Nerd Profile, Share Questions And Get Help From Other
+                                    Nerds
+                                </p>
+                                <div className="buttons">
+                                    <Link to="/sign-up" className="btn btn-primary">
+                                        Sign Up
+                                    </Link>
+                                    <Link to="sign-in" className="btn btn-light">
+                                        Sign In
+                                    </Link>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </section>
-            </Fragment>
-        );
+                    </section>
+                </Fragment>
+            );
+        }
     }
 }
 
-export default Landing;
+const mapStateToProps = (state) => ({
+    isAuthenticated: state.authentication.isAuthenticated,
+});
+
+export default connect(mapStateToProps)(Landing);

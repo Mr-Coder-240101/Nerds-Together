@@ -1,3 +1,4 @@
+// Load Modules
 const express = require("express");
 const config = require("config");
 const { check, validationResult } = require("express-validator");
@@ -8,9 +9,8 @@ const authentication = require("../../middleware/authentication");
 // Creating Router
 const router = express.Router();
 
-// Load Modules
+// Load Schema
 const Profile = require("../../models/Profiles");
-// const User = require("../../models/User");
 
 // Handling Get Request For "api/profiles/me"
 router.get("/me", authentication, async (req, res) => {
@@ -36,10 +36,10 @@ router.get("/me", authentication, async (req, res) => {
 
 // Set Validation For Post "api/profiles"
 const validate1 = [
-    check("location", "Location Is Required").notEmpty(),
-    check("status", "Status Is Required").notEmpty(),
-    check("skills", "Skills Are Required").notEmpty(),
-    check("dateOfBirth", "Birth Date Is Required").notEmpty(),
+    check("location", "Location Is Must Required").notEmpty(),
+    check("status", "Status Is Must Required").notEmpty(),
+    check("skills", "Skills Are Must Required").notEmpty(),
+    check("bio", "Short Bio Is Must Required").notEmpty(),
 ];
 
 // Handling Post Request For "api/profiles"
@@ -58,7 +58,7 @@ router.post("/", authentication, validate1, async (req, res) => {
             location,
             status,
             skills,
-            dateOfBirth,
+            bio,
             youtube,
             twitter,
             instagram,
@@ -73,10 +73,10 @@ router.post("/", authentication, validate1, async (req, res) => {
         if (website) profileFields.website = website;
         if (location) profileFields.location = location;
         if (status) profileFields.status = status;
+        if (bio) profileFields.bio = bio;
         if (skills) {
             profileFields.skills = skills.split(",").map((skill) => skill.trim());
         }
-        if (dateOfBirth) profileFields.dateOfBirth = dateOfBirth;
         profileFields.social = {};
 
         if (youtube) profileFields.social.youtube = youtube;
@@ -90,13 +90,13 @@ router.post("/", authentication, validate1, async (req, res) => {
             let profile = await Profile.findOne({ user: req.id });
 
             if (profile) {
-                await Profile.findOneAndUpdate(
+                profile = await Profile.findOneAndUpdate(
                     { user: req.id },
                     { $set: profileFields },
                     { new: true }
-                );
+                ).populate("user", ["fname", "lname", "avatar"]);
             } else {
-                profile = new Profile(profileFields);
+                profile = new Profile(profileFields).populate("user", ["fname", "lname", "avatar"]);
                 await profile.save();
             }
 
@@ -110,9 +110,10 @@ router.post("/", authentication, validate1, async (req, res) => {
 });
 
 // Handling Get Request For "api/profiles"
-router.get("/", async (req, res) => {
+router.get("/", authentication, async (req, res) => {
     try {
-        const profiles = await Profile.find().populate("user", ["fname", "lname", "avatar"]);
+        let profiles = await Profile.find().populate("user", ["fname", "lname", "avatar"]);
+        profiles = profiles.filter((profile) => profile.user._id != req.id);
         res.json(profiles);
     } catch (error) {
         return res.status(500).json({
@@ -129,13 +130,13 @@ router.get("/user/:user_id", async (req, res) => {
         }).populate("user", ["fname", "lname", "avatar"]);
 
         if (!profile) {
-            return res.status(400).json({ errors: [{ msg: "Profile Not Found" }] });
+            return res.status(404).json({ errors: [{ msg: "Profile Not Found" }] });
         } else {
             return res.json(profile);
         }
     } catch (error) {
         if (error.kind == "ObjectId") {
-            return res.status(400).json({ errors: [{ msg: "Profile Not Found" }] });
+            return res.status(404).json({ errors: [{ msg: "Profile Not Found" }] });
         } else {
             return res.status(500).json({
                 errors: [{ msg: error.message }],
@@ -145,11 +146,11 @@ router.get("/user/:user_id", async (req, res) => {
 });
 
 const validate2 = [
-    check("title", "Title Of Experience Is Required").notEmpty(),
-    check("company", "Company Name Is Required").notEmpty(),
-    check("location", "Location Of Company Is Required"),
-    check("from", "Starting Date Of Work Is Required").notEmpty(),
-    check("description", "Description Of Your Work Is Required").notEmpty(),
+    check("title", "Title Of Experience Is Must Required").notEmpty(),
+    check("company", "Company Name Is Must Required").notEmpty(),
+    check("location", "Location Of Company Is Must Required"),
+    check("from", "Starting Date Of Work Is Must Required").notEmpty(),
+    check("description", "Description Of Your Work Is Must Required").notEmpty(),
 ];
 
 // Handling Put Request For "api/profiles/experience"
@@ -164,7 +165,11 @@ router.put("/experience", authentication, validate2, async (req, res) => {
         });
     } else {
         try {
-            const profile = await Profile.findOne({ user: req.id });
+            const profile = await Profile.findOne({ user: req.id }).populate("user", [
+                "fname",
+                "lname",
+                "avatar",
+            ]);
             profile.experience.unshift(req.body);
             await profile.save();
             return res.json(profile);
@@ -176,7 +181,7 @@ router.put("/experience", authentication, validate2, async (req, res) => {
     }
 });
 
-// Handling Delete Request For "api/profiles/experience:exp_id"
+// Handling Delete Request For "api/profiles/experience/:exp_id"
 router.delete("/experience/:exp_id", authentication, async (req, res) => {
     try {
         const profile = await Profile.findOne({ user: req.id });
@@ -188,17 +193,18 @@ router.delete("/experience/:exp_id", authentication, async (req, res) => {
         await profile.save();
         return res.json(profile);
     } catch (error) {
-        console.error(error);
-        return res.status(500).json({ msg: "Server error" });
+        return res.status(500).json({
+            errors: [{ msg: error.message }],
+        });
     }
 });
 
 const validate3 = [
-    check("institute", "Institute Name Is Required").notEmpty(),
-    check("degree", "Degree Name Is Required").notEmpty(),
-    check("field", "Field Name Is Required").notEmpty(),
-    check("from", "Starting Date Of Work Is Required").notEmpty(),
-    check("description", "Description Of Your Work Is Required").notEmpty(),
+    check("institute", "Institute Name Is Must Required").notEmpty(),
+    check("degree", "Degree Name Is Must Required").notEmpty(),
+    check("field", "Field Name Is Must Required").notEmpty(),
+    check("from", "Starting Date Of Work Is Must Required").notEmpty(),
+    check("description", "Description Of Your Work Is Must Required").notEmpty(),
 ];
 
 // Handling Put Request For "api/profiles/education"
@@ -213,7 +219,11 @@ router.put("/education", authentication, validate3, async (req, res) => {
         });
     } else {
         try {
-            const profile = await Profile.findOne({ user: req.id });
+            const profile = await Profile.findOne({ user: req.id }).populate("user", [
+                "fname",
+                "lname",
+                "avatar",
+            ]);
             profile.education.unshift(req.body);
             await profile.save();
             return res.json(profile);
@@ -225,7 +235,7 @@ router.put("/education", authentication, validate3, async (req, res) => {
     }
 });
 
-// Handling Delete Request For "api/profiles/education:edu_id"
+// Handling Delete Request For "api/profiles/education/:edu_id"
 router.delete("/education/:edu_id", authentication, async (req, res) => {
     try {
         const profile = await Profile.findOne({ user: req.id });
@@ -237,8 +247,9 @@ router.delete("/education/:edu_id", authentication, async (req, res) => {
         await profile.save();
         return res.json(profile);
     } catch (error) {
-        console.error(error);
-        return res.status(500).json({ msg: "Server error" });
+        return res.status(500).json({
+            errors: [{ msg: error.message }],
+        });
     }
 });
 

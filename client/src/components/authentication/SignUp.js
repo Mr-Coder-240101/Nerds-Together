@@ -1,17 +1,14 @@
 import React, { Component, Fragment } from "react";
-import { Link } from "react-router-dom";
-import PropTypes from "prop-types";
+import { Link, Redirect } from "react-router-dom";
 import { connect } from "react-redux";
 import { setAlert } from "../../actions/alert";
+import { registerUser } from "../../actions/authentication";
 import Alert from "../layout/Alert";
 
 class Register extends Component {
-    static propTypes = {
-        setAlert: PropTypes.func.isRequired,
-    };
-
     state = {
-        name: "",
+        fname: "",
+        lname: "",
         email: "",
         password: "",
         conform_password: "",
@@ -26,29 +23,43 @@ class Register extends Component {
     onSubmitHandler = (event) => {
         event.preventDefault();
         if (this.state.password === this.state.conform_password) {
-            console.log(this.state);
+            const { fname, lname, email, password } = this.state;
+            this.props.registerUser({ fname, lname, email, password });
         } else {
-            this.props.setAlert("Password And Conform Password Do Not Match !!!", "danger", 4000);
+            this.props.setAlert("Password And Conform Password Do Not Match", "danger");
         }
     };
 
     render() {
+        if (this.props.authentication.isAuthenticated) {
+            return <Redirect to="/create-profile" />;
+        }
         return (
             <Fragment>
                 <section className="container">
                     <Alert />
                     <h1 className="large text-primary">Sign Up</h1>
                     <p className="lead">
-                        <i className="fas fa-user"></i> Create Your Account
+                        <i className="fas fa-user fa-lg"></i> Create Your Account
                     </p>
-                    <form className="form" onSubmit={(e) => this.onSubmitHandler(e)}>
+                    <form className="form" onSubmit={this.onSubmitHandler}>
                         <div className="form-group">
                             <input
                                 type="text"
-                                placeholder="Name"
-                                name="name"
-                                value={this.state.name}
-                                onChange={(e) => this.onChangeHandler(e)}
+                                placeholder="First Name"
+                                name="fname"
+                                value={this.state.fname}
+                                onChange={this.onChangeHandler}
+                                required
+                            />
+                        </div>
+                        <div className="form-group">
+                            <input
+                                type="text"
+                                placeholder="Last Name"
+                                name="lname"
+                                value={this.state.lname}
+                                onChange={this.onChangeHandler}
                                 required
                             />
                         </div>
@@ -58,7 +69,7 @@ class Register extends Component {
                                 placeholder="Email Address"
                                 name="email"
                                 value={this.state.email}
-                                onChange={(e) => this.onChangeHandler(e)}
+                                onChange={this.onChangeHandler}
                                 required
                             />
                         </div>
@@ -69,7 +80,7 @@ class Register extends Component {
                                 name="password"
                                 minLength="8"
                                 value={this.state.password}
-                                onChange={(e) => this.onChangeHandler(e)}
+                                onChange={this.onChangeHandler}
                                 required
                             />
                         </div>
@@ -80,14 +91,14 @@ class Register extends Component {
                                 name="conform_password"
                                 minLength="8"
                                 value={this.state.conform_password}
-                                onChange={(e) => this.onChangeHandler(e)}
+                                onChange={this.onChangeHandler}
                                 required
                             />
                         </div>
-                        <input type="submit" className="btn btn-primary" value="Register" />
+                        <input type="submit" className="btn btn-primary" value="Sign Up" />
                     </form>
                     <p className="my-1">
-                        Already have an account? <Link to="login">Sign In</Link>
+                        Already have an account? <Link to="/sign-in">Sign In</Link>
                     </p>
                 </section>
             </Fragment>
@@ -95,4 +106,8 @@ class Register extends Component {
     }
 }
 
-export default connect(null, { setAlert })(Register);
+const mapStateToProps = (state) => ({
+    authentication: state.authentication,
+});
+
+export default connect(mapStateToProps, { setAlert, registerUser })(Register);

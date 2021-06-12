@@ -1,4 +1,5 @@
 import * as ActionTypes from "../actions/types";
+
 const initialState = [];
 
 const alertReducer = (state = initialState, action) => {

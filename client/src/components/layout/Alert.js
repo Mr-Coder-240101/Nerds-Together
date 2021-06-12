@@ -1,12 +1,7 @@
 import React, { Component, Fragment } from "react";
-import PropTypes from "prop-types";
 import { connect } from "react-redux";
 
 class Alert extends Component {
-    static propTypes = {
-        alerts: PropTypes.array.isRequired,
-    };
-
     getAlertComponent = () => {
         if (this.props.alerts === null || this.props.alerts.length === 0) {
             return <Fragment></Fragment>;

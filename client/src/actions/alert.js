@@ -2,7 +2,7 @@ import { v4 as uuidv4 } from "uuid";
 import * as ActionTypes from "./types";
 
 export const setAlert =
-    (message, alertType, timeout = 5000) =>
+    (message, alertType, timeout = 3000) =>
     (dispatch) => {
         const id = uuidv4();
         dispatch({
