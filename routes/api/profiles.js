@@ -96,8 +96,13 @@ router.post("/", authentication, validate1, async (req, res) => {
                     { new: true }
                 ).populate("user", ["fname", "lname", "avatar"]);
             } else {
-                profile = new Profile(profileFields).populate("user", ["fname", "lname", "avatar"]);
+                profile = new Profile(profileFields);
                 await profile.save();
+                profile = await Profile.findOne({ user: req.id }).populate("user", [
+                    "fname",
+                    "lname",
+                    "avatar",
+                ]);
             }
 
             return res.json(profile);

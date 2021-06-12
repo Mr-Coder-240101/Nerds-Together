@@ -46,3 +46,4 @@ export const DELETE_POST_FAILURE = "delete_post_failure";
 export const CLEAR_POSTS = "clear_posts";
 export const SET_POST_DATA = "set_post_data";
 export const SET_POST_USER = "set_post_user";
+export const DELETE_USER = "delete_user";

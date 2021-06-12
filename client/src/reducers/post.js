@@ -40,6 +40,7 @@ const postsReducer = (state = initialState, action) => {
         case ActionTypes.SET_POST_USER:
             return { ...state, isUserPost: payload };
         case ActionTypes.CLEAR_POSTS:
+        case ActionTypes.DELETE_USER:
             return {
                 userPosts: [],
                 errors: null,

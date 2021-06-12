@@ -40,6 +40,7 @@ const authenticationReducer = (state = initialState, action) => {
         case ActionTypes.REGISTRATION_FAILURE:
         case ActionTypes.LOGIN_FAILURE:
         case ActionTypes.LOGOUT_SUCCESS:
+        case ActionTypes.DELETE_USER:
             localStorage.removeItem("token");
             return { ...state, token: null, isAuthenticated: false, user: null, errors: payload };
         case ActionTypes.CHANGE_USER_AVATAR:

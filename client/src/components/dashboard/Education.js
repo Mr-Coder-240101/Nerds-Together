@@ -49,12 +49,6 @@ class Education extends Component {
                     </thead>
                     <tbody>{this.getEducation()}</tbody>
                 </table>
-
-                <div className="my-2">
-                    <button className="btn btn-danger">
-                        <i className="fas fa-user"></i> &nbsp; Delete My Account
-                    </button>
-                </div>
             </Fragment>
         );
     }

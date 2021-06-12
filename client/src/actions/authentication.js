@@ -159,3 +159,26 @@ export const changeAvatar = (formData) => async (dispatch) => {
         }
     }
 };
+
+export const deleteUser = () => async (dispatch) => {
+    const state = store.getState();
+    const token = state.authentication.token;
+    const config = {
+        headers: {
+            "x-auth-token": token,
+        },
+    };
+    try {
+        const response = await axios.delete("/api/users", config);
+        const msg = response.data.msg;
+        dispatch(setAlert(msg, "success"));
+        dispatch({
+            type: ActionTypes.DELETE_USER,
+        });
+    } catch (error) {
+        const errors = error.response.data.errors;
+        if (errors) {
+            errors.forEach((err) => dispatch(setAlert(err.msg, "danger")));
+        }
+    }
+};

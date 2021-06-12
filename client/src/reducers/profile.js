@@ -28,6 +28,7 @@ const profileReducer = (state = initialState, action) => {
         case ActionTypes.FETCH_OTHER_PROFILE_FAILURE:
             return { ...state, error: payload };
         case ActionTypes.CLEAR_PROFILE:
+        case ActionTypes.DELETE_USER:
             return {
                 ...state,
                 profile: null,

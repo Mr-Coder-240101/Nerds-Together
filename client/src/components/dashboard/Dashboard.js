@@ -4,6 +4,7 @@ import { connect } from "react-redux";
 import Alert from "../layout/Alert";
 import Experience from "./Experience";
 import Education from "./Education";
+import { deleteUser } from "../../actions/authentication";
 
 class Dashboard extends Component {
     render() {
@@ -35,6 +36,11 @@ class Dashboard extends Component {
                         <Experience profile={this.props.profile.profile} />
 
                         <Education profile={this.props.profile.profile} />
+                        <div className="my-2">
+                            <button className="btn btn-danger" onClick={this.props.deleteUser}>
+                                <i className="fas fa-user"></i> &nbsp; Delete My Account
+                            </button>
+                        </div>
                     </section>
                 </Fragment>
             );
@@ -62,4 +68,4 @@ const mapStateToProps = (state) => ({
     profile: state.profile,
 });
 
-export default connect(mapStateToProps)(Dashboard);
+export default connect(mapStateToProps, { deleteUser })(Dashboard);
