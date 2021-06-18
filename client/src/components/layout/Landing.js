@@ -18,7 +18,7 @@ class Landing extends Component {
                             <div className="landing-inner">
                                 <h1 className="x-large">Nerds Together</h1>
                                 <p className="lead">
-                                    Create A Nerd Profile, Share Questions And Get Help From Other
+                                    Create A Nerd Profile, Share Your Queries, Questions, Errors And Get Help From Other
                                     Nerds
                                 </p>
                                 <div className="buttons">
